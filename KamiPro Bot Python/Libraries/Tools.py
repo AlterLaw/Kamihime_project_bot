@@ -1,7 +1,6 @@
+import keyboard
 import os
 import sys
-
-import keyboard
 
 def clear_console():
     if os.name == 'nt':

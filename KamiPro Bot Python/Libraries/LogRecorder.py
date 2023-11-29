@@ -1,6 +1,6 @@
+from datetime import datetime
 from PIL import ImageGrab
 import sys
-from datetime import datetime
 import os
 
 class MemoryLogger:
