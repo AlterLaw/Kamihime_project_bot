@@ -8,3 +8,10 @@ pip install -r requirements.txt
 
 -Disable virtual enviroment
 exit
+
+-in case modules are missing, get them on "requirements.txt" file
+
+-Command to remake the exe file
+pyinstaller --onefile KamiProBot_source\Repeat_quest_program.py
+Repeat_quest_program.py
+Assets\Aesthetic\dartagnam.ico
