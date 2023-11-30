@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['D:\\MyRepo\\Kamihime_project_bot\\KamiProBot_source\\Repeat_quest_program.py'],
+    ['KamiProBot_source\\Repeat_quest_program.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -34,5 +34,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['D:\\MyRepo\\Kamihime_project_bot\\KamiProBot_source\\Assets\\Aesthetic\\dartagnam.ico'],
+    icon=['KamiProBot_source\\Assets\\Aesthetic\\dartagnam.ico'],
 )
