@@ -19,4 +19,4 @@ array=imgV3.screen_elements()
 
 \
 print(array["select_raid"])
-image_exists(array["notice"])
+image_exists(array["challenge"])

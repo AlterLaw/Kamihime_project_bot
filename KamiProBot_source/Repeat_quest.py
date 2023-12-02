@@ -23,6 +23,7 @@ image_paths = [
     paths["retry"],
     paths["my_supp"],
     paths["to_quest"],
+    paths["supp_req"],
     paths["start_battle"],
     paths["burst"],
     
@@ -120,7 +121,7 @@ def find_and_click(image_paths, confidence):
                 pyautogui.click(center_x, center_y)
 
 
-            if params[3]==10:
+            if params[3]>60:
                 running=False
 
 

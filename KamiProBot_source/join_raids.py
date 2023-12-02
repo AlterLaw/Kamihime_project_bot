@@ -16,7 +16,7 @@ def capture_screenshot():
     screenshot_np = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
     return screenshot_np
 
-def iterate_over_single(path,params,tela):
+def iterate_over_single(path,confidence,tela):
          
     try:
         tools.check_for_f1()
@@ -24,7 +24,7 @@ def iterate_over_single(path,params,tela):
         template = cv2.imread(path)
         result = cv2.matchTemplate(tela, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        if max_val >= params["conf"]:
+        if max_val >= confidence:
             return max_loc, path
         else:
             screenshot=None
@@ -37,9 +37,7 @@ def iterate_over_single(path,params,tela):
     return None, None
 
     
-def iterate_over_array(image_paths, params,tela):
-
-
+def iterate_over_array(image_paths, confidence,tela):
 
     for path in image_paths:
         try:
@@ -48,7 +46,7 @@ def iterate_over_array(image_paths, params,tela):
             result = cv2.matchTemplate(tela, template, cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
             
-            if max_val >= params["conf"]:
+            if max_val >= confidence:
                 return max_loc, path
             else:
                 screenshot=None
@@ -87,7 +85,7 @@ def clicker(location,path):
         pyautogui.click(center_x, center_y)
         time.sleep(3)
 
-
+ 
 def stats_screen(params):
     print("---------------------")
     print("KamiPro bot running")
