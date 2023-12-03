@@ -75,6 +75,26 @@ def capture_screenshot():
     screenshot_np = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
     return screenshot_np
 
+def stats_screen(process, max_value,min_value,Qcount,state):
+
+    memory_info = process.memory_info()
+    if memory_info> max_value:
+        max_value = memory_info
+    if memory_info < min_value:
+        min_value = memory_info
+    cpu_use = process.cpu_percent(interval=1)
+
+    print("KamiPro bot running")
+    print("---------------------")
+    print("Hold F1 to cancel execution")
+    print(f"Quests completed: {Qcount}")
+    print(f"Current state: {state}")
+    print(f"Used memory: {memory_info.rss / 1024 / 1024:.2f} MB")
+    print(f"Lowest record: {min_value.rss / 1024 / 1024:.2f} MB")
+    print(f"Highest record: {max_value.rss / 1024 / 1024:.2f} MB")
+    print(f"Used CPU: {cpu_use}%")
+    print("---------------------")
+    return max_value,min_value
 
 
 

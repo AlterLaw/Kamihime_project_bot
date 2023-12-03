@@ -22,7 +22,7 @@ image_paths = [
     paths["confirm"],
     paths["retry"],
     paths["my_supp"],
-    paths["to_quest"],
+    paths["go_to_quest"],
     paths["supp_req"],
     paths["start_battle"],
     paths["burst"],

@@ -1,10 +1,28 @@
 import psutil
-from Libraries.Debug import capture_and_save_screenshot
-import Libraries.LogRecorder as log
 import Libraries.Tools as tools
 import Libraries.img_arraysV3 as imgV3
 import time
      
+
+def battle_lost(params):
+    paths= params["L_paths"]
+    iteration_list =[
+        paths["cancel"],
+        paths["confirm"],
+        paths["mid_battle"],
+    ]
+    location,path=tools.search_single_on_array(iteration_list,params["conf"],params["screen"])
+    print(path)
+    if path is not None and path is not paths["mid_battle"]:
+        tools.clicker(location,path)
+
+    elif path is paths["mid_battle"]:
+        tools.clicker(location,path)
+        time.sleep(5)
+
+    return params
+    
+
 def battle_won(params):
     paths= params["L_paths"]
     iteration_list =[
@@ -23,6 +41,7 @@ def battle_won(params):
         params["Qcount"]+=1
     return params
 
+
 def in_battle(params):
     paths= params["L_paths"]
     iteration_list =[
@@ -38,6 +57,7 @@ def in_battle(params):
     elif path is paths["burst"]:
         time.sleep(5)
     return params
+
 
 def supp_selection(params):
     paths= params["L_paths"]
@@ -59,6 +79,8 @@ def detect_state(params):
     expected_elements=[
         paths["select_supp"],
         paths["request_support"],
+        paths["battle_lost"],
+        paths["revive"],
         paths["battle_won"]
     ]
     
@@ -72,36 +94,12 @@ def detect_state(params):
         
     if path== paths["battle_won"]:
         params["state"] = "battle_won"
+    
+    if path== paths["battle_lost"] or path== paths["revive"]:
+        params["state"] = "battle_lost"
 
     return params
 
-
-
-def stats_screen(params):
-
-    print("KamiPro bot running")
-    print("---------------------")
-    print("Hold F1 to cancel execution")
-    print(f"Quests completed: {params["Qcount"]}")
-    print(f"Current state: {params["state"]}")
-    memory_info = params["prc"].memory_info()
-    print(f"Used memory: {memory_info.rss / 1024 / 1024:.2f} MB")
-
-    if memory_info> params["prc_high"]:
-        params["prc_high"] = memory_info
-    if memory_info <params["prc_low"]:
-        params["prc_low"] = memory_info
-    
-    print(f"Lowest record: {params["prc_low"].rss / 1024 / 1024:.2f} MB")
-    print(f"Highest record: {params["prc_high"].rss / 1024 / 1024:.2f} MB")
-
-
-    #cpu_use = process.cpu_percent(interval=1)
-    #print(f"Used CPU: {cpu_use}%")
-    print("---------------------")
-    return params
-
-    
 
 def update(params):
     
@@ -114,7 +112,7 @@ def update(params):
 
         tools.check_for_f1()
         params=detect_state(params)
-        params=stats_screen(params)
+        params["prc_high"], params["prc_low"] = tools.stats_screen(params["prc"],params["prc_high"],params["prc_low"],params["Qcount"],params["state"])
 
         if params["state"] is "pre_battle":
             params=supp_selection(params)
@@ -124,7 +122,10 @@ def update(params):
         if params["state"] is "battle_won":
             params=battle_won(params)
 
-        if params["Qcount"]>60:
+        if params["state"] is "battle_lost":
+            params=battle_lost(params)
+
+        if params["Qcount"]>11:
             params["run"]=False
 
 
@@ -137,10 +138,6 @@ def update(params):
 if __name__ == "__main__":
     # Clears the console
     tools.clear_console()
-
-    # Instance
-    # relatorio_erro = log.MemoryLogger()
-    # sys.stdout = relatorio_erro
 
     paths=imgV3.screen_elements()
     current_process = psutil.Process()
@@ -164,8 +161,4 @@ if __name__ == "__main__":
     "screen": None
     }
 
-    # Call the function with the specified image path and confidence level
     update(params)
-
-    # Restore sys.stdout to the original state
-    # sys.stdout = sys.__stdout__

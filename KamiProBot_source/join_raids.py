@@ -10,66 +10,19 @@ import time
 import sys
 import cv2
 
-
-def capture_screenshot():
-    screenshot = pyautogui.screenshot()
-    screenshot_np = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-    return screenshot_np
-
-def iterate_over_single(path,confidence,tela):
-         
-    try:
-        tools.check_for_f1()
-            
-        template = cv2.imread(path)
-        result = cv2.matchTemplate(tela, template, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        if max_val >= confidence:
-            return max_loc, path
-        else:
-            screenshot=None
-            #print(f"Image not found for path: {path}. Skipping to the next image.")
-            #sucess_counter=sucess_counter+1
-    except Exception as e:
-        print("Error on iteration over single")
-        print(f"Error while processing image for path {path}: {e}")
-        
-    return None, None
-
-    
-def iterate_over_array(image_paths, confidence,tela):
-
-    for path in image_paths:
-        try:
-            tools.check_for_f1()
-            template = cv2.imread(path)
-            result = cv2.matchTemplate(tela, template, cv2.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            
-            if max_val >= confidence:
-                return max_loc, path
-            else:
-                screenshot=None
-                #print(f"Image not found for path: {path}. Skipping to the next image.")
-                #sucess_counter=sucess_counter+1
-        except Exception as e:
-            print("Error on iteration over array")
-            print(f"Error while processing image for path {path}: {e}")
-        
-    return None, None
-
 def refresh(params):
 
-    src=capture_screenshot()
+    src=tools.capture_screenshot()
     single_path=params["elements"]["r_events"]
-    location, path= iterate_over_single(single_path,params,src)
+    location, path=tools.search_single_on_single(single_path,params["conf"],src)
+
 
     if location is not None:    
         clicker(location,path)
 
-    src=capture_screenshot()
+    src=tools.capture_screenshot()
     single_path=params["elements"]["r_regular"]
-    location, path= iterate_over_single(single_path,params,src)
+    location, path= tools.search_single_on_single(single_path,params["conf"],src)
     if location is not None:    
         clicker(location,path)
 
@@ -101,7 +54,7 @@ def stats_screen(params):
 def current_state_verification(tela,params):
     
     caminho=params["V3"].verification_elements()
-    selected_location, selected_path= iterate_over_array(caminho,params,tela)
+    selected_location, selected_path = tools.search_single_on_array(caminho,params["conf"],tela) 
     print(params["state"])
     if selected_path == params["elements"]["select_raid"]:
         params["state"] = "raid_list"
@@ -140,39 +93,40 @@ def current_state_verification(tela,params):
 
 
 def look_for_raids(params):
-    tela=capture_screenshot()
+    tela=tools.capture_screenshot()
     objects=params["V3"].screen_elements()
 
-    location, path= iterate_over_single(objects["r_reward"],params,tela)
+    location, path= tools.search_single_on_single(objects["r_reward"],params["conf"],tela)
 
     if path is not None:
         clicker(location,path)
-        tela=capture_screenshot()
-        object1=objects["r_sucess"]
-        location, path= iterate_over_single(object1,params,tela)
+        tela=tools.capture_screenshot()
+ 
+        location, path= tools.search_single_on_single(objects["r_sucess"],params["conf"],tela)
         clicker(location,path)
         return
 
-    location, path= iterate_over_single(objects["No_btt"],params,tela)
+    location, path= tools.search_single_on_single(objects["No_btt"],params["conf"],tela)
     
     if path is not None:
         refresh(params)
         return params
 
-    selected_location, selected_path= iterate_over_array(params["V3"].raid_boss_list(),params,tela)
+    selected_location, selected_path= tools.search_single_on_array(params["V3"].raid_boss_list(),params["conf"],tela) 
 
     if selected_path is not None:
             clicker(selected_location,selected_path)
             return params
         
     else:
-        tela=capture_screenshot()
-        location, path= iterate_over_single(objects["item"],params,tela)
+        tela=tools.capture_screenshot()
+        location, path= tools.search_single_on_single(objects["item"],params["conf"],tela)
 
         if path is not None:
             clicker(location,path)
-            tela=capture_screenshot()
-            location, path= iterate_over_single(objects["confirm"],params,tela)
+            tela=tools.capture_screenshot()
+            location, path = tools.search_single_on_single(objects["confirm"],params["conf"],tela)
+
             clicker(location,path)
         else:
             refresh(params)
@@ -182,15 +136,16 @@ def look_for_raids(params):
 
 
 def pre_battle(params):
-    tela=capture_screenshot()
+    tela=tools.capture_screenshot()
     objects=params["V3"].screen_elements()
 
-    location, path= iterate_over_single(objects["my_supp"],params,tela)
+    location, path= tools.search_single_on_single(objects["my_supp"],params["conf"],tela)
+
 
     if path is not None:
         clicker(location,path)
         
-    location, path= iterate_over_single(objects["to_quest"],params,tela)
+    location, path= tools.search_single_on_single(objects["go_to_quest"],params["conf"],tela)
 
     if path is not None:
         clicker(location,path)
@@ -201,13 +156,14 @@ def pre_battle(params):
             objects["r_sucess"],
             objects["return_to_raids"],
             ]
-    tela=capture_screenshot()
-    location, path= iterate_over_array(possibilities,params,tela)
+    tela=tools.capture_screenshot()
+    location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
 
     if path is not None:
         clicker(location,path)
-        tela=capture_screenshot()
-        location, path= iterate_over_array(possibilities,params,tela)
+        tela=tools.capture_screenshot()
+        location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
+
         if path is params["elements"]["confirm"]:
             params["state"]= "raid_list"
             clicker(location,path)
@@ -225,10 +181,10 @@ def pre_battle(params):
     return params
 
 def offbattle(params):
-    tela=capture_screenshot()
+    tela=tools.capture_screenshot()
     objects=params["V3"].screen_elements()
 
-    location, path= iterate_over_single(objects["supp_req"],params,tela)
+    location, path= tools.search_single_on_single(objects["supp_req"],params["conf"],tela)
 
     if path is not None:
         clicker(location,path)
@@ -239,9 +195,9 @@ def offbattle(params):
         
 
 def onbattle(params):
-    tela=capture_screenshot()
+    tela=tools.capture_screenshot()
     objects=params["V3"].screen_elements()
-    location, path= iterate_over_single(objects["start_battle"],params,tela)
+    location, path= tools.search_single_on_single(objects["start_battle"],params["conf"],tela)
 
     if path is not None:
         clicker(location,path)
@@ -252,14 +208,15 @@ def onbattle(params):
         return params
 
 def victory(params):
-    tela=capture_screenshot()
+    tela=tools.capture_screenshot()
     objects=params["V3"].screen_elements()
 
     possibilities=[
             objects["confirm"],
             objects["return_to_raids"],
             ]
-    location, path= iterate_over_array(possibilities,params,tela)
+    location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
+
     print(path)
     if path is not None:
         clicker(location,path)
@@ -268,14 +225,14 @@ def victory(params):
     return params
 
 def loss(params):
-    tela=capture_screenshot()
+    tela=tools.capture_screenshot()
     objects=params["V3"].screen_elements()
 
     possibilities=[
             objects["return_to_raids"],
             objects["cancel"],
             ]
-    location, path= iterate_over_array(possibilities,params,tela)
+    location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
 
     if path is not None:
         clicker(location,path)
@@ -283,7 +240,7 @@ def loss(params):
 
 
 def menu(params):
-    tela=capture_screenshot()
+    tela=tools.capture_screenshot()
     objects=params["V3"].screen_elements()
     
 
@@ -291,20 +248,12 @@ def menu(params):
             objects["popup"],
             objects["boss_available"],
             ]
-    location, path= iterate_over_array(possibilities,params,tela)
+    location, path=  tools.search_single_on_array(possibilities,params["conf"],tela)
 
     if path is not None:
         clicker(location,path)
         return params
     return params
-    
-    
-
-
-
-
-        
-
 
 def update(params):
     print("KamiPro bot Initiating...")
@@ -321,7 +270,7 @@ def update(params):
     """
 
     while params["run"]:
-        tela_atual = capture_screenshot()
+        tela_atual = tools.capture_screenshot()
 
         params=current_state_verification(tela_atual,params)
 
@@ -406,10 +355,8 @@ if __name__ == "__main__":
     loop_counter= 1 #2
     quests_counter=0 #3
     state= "Danone" #4
-    confidence_level = 0.85 #5
+    confidence_level = 0.9 #5
     screen_elements= instance.screen_elements()
-
-
 
     params = {
     "prc": current_process,
@@ -427,10 +374,3 @@ if __name__ == "__main__":
 
     update(params)
     
-    #debug(params)
-    #single_path='Assets\_confirm.PNG'
-    #location, path= iterate_over_single(single_path,params)
-    #print(location, path)
-
-
-

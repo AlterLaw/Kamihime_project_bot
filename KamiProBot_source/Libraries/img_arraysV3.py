@@ -86,6 +86,7 @@ def screen_elements():
     "raid_quests": making_path(screen_assets_folder, 'raid_quests.PNG'),
     "request_support":  making_path(screen_verification_folder, 'scrn_request_supp.PNG'),
     "retry": making_path(screen_assets_folder, 'retry.PNG'),
+    "revive":making_path(screen_verification_folder, 'scrn_resuscitation.PNG'),
     "return_to_raids":  making_path(screen_assets_folder, 'return_to_raids.PNG'),
     "r_reward": making_path(screen_assets_folder, 'raid_reward.PNG') ,
     "r_sucess":  making_path(screen_assets_folder, 'raid_sucess.PNG'),
@@ -116,69 +117,4 @@ def verification_elements():
 
     ]
     return S_elements
-
-def expected_buttons_rewards():
-    elements= screen_elements()
-    expected_buttons=[
-    elements["r_reward"],
-    elements["r_sucess"],
-    elements["confirm"],
-    elements["return_to_raids"]
-    ]
-    return expected_buttons
-
-def scan_for_rewards():
-    elements= screen_elements()
-    expected_buttons=[
-    elements["r_reward"],
-    elements["r_sucess"]
-    ]
-    return expected_buttons
-
-
-def expected_buttons_pre_battle():
-    elements= screen_elements()
-    expected_buttons=[
-    elements["my_supp"],
-    elements["confirm"],
-    elements["to_quest"]
-    ]
-    return expected_buttons
-
-def expected_buttons_in_battle():
-    elements= screen_elements()
-    expected_buttons=[
-    elements["start_battle"],
-    elements["supp_req"]
-    ]
-    return expected_buttons
-
-def checking_ending():
-    elements= screen_elements()
-    expected_buttons=[
-    elements["cancel"],
-    elements["confirm"]
-    
-    ]
-    return expected_buttons
-
-def expected_buttons_in_ending():
-    elements= screen_elements()
-    expected_buttons=[
-    elements["boss_available"],
-    elements["go_to_my_page"],
-    elements["confirm"],
-    elements["return_to_raids"]
-    ]
-    return expected_buttons
-
-def state_indicator():
-    elements= screen_elements()
-    expected_buttons=[
-    elements["r_events"],
-    elements["go_to_my_page"],
-    elements["confirm"],
-    elements["return_to_raids"]
-    ]
-    return expected_buttons
 
