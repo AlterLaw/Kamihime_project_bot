@@ -1,60 +1,32 @@
 import traceback
 import psutil
-from Libraries.Debug import capture_and_save_screenshot
-import Libraries.LogRecorder as log
 import Libraries.Tools as tools
 import Libraries.img_arraysV3 as imgsV3
 import numpy as np
 import pyautogui
 import time
-import sys
-import cv2
+
 
 def refresh(params):
+    src = tools.capture_screenshot()
+    single_path = params["elements"]["r_events"]
+    location, path = tools.search_single_on_single(single_path, params["conf"], src)
 
-    src=tools.capture_screenshot()
-    single_path=params["elements"]["r_events"]
-    location, path=tools.search_single_on_single(single_path,params["conf"],src)
-
-
-    if location is not None:    
-        clicker(location,path)
-
-    src=tools.capture_screenshot()
-    single_path=params["elements"]["r_regular"]
-    location, path= tools.search_single_on_single(single_path,params["conf"],src)
-    if location is not None:    
-        clicker(location,path)
-
-
-def clicker(location,path):
     if location is not None:
-        # Use the size of the template image found on screen
-        template_width = cv2.imread(path).shape[1]
-        template_height = cv2.imread(path).shape[0]
-            
-        center_x = location[0] + template_width // 2
-        center_y = location[1] + template_height // 2
-        pyautogui.click(center_x, center_y)
-        time.sleep(3)
+        tools.clicker(location, path)
 
- 
-def stats_screen(params):
-    print("---------------------")
-    print("KamiPro bot running")
-    print("---------------------")
-    print("Hold F1 to cancel execution")
-    print(f"Current update loop: {params["Lcount"]}")
-    print(f"Quests completed: {params["Qcount"]}")
-    
-    print(f"Current state: {params["state"]}")
-    memory_info = params["prc"].memory_info()
-    print(f"Memory Usage: {memory_info.rss / 1024 / 1024:.2f} MB")
+    src = tools.capture_screenshot()
+    single_path = params["elements"]["r_regular"]
+    location, path = tools.search_single_on_single(single_path, params["conf"], src)
+    if location is not None:
+        tools.clicker(location, path)
 
-def current_state_verification(tela,params):
-    
-    caminho=params["V3"].verification_elements()
-    selected_location, selected_path = tools.search_single_on_array(caminho,params["conf"],tela) 
+
+def current_state_verification(tela, params):
+    caminho = params["V3"].verification_elements()
+    selected_location, selected_path = tools.search_single_on_array(
+        caminho, params["conf"], tela
+    )
     print(params["state"])
     if selected_path == params["elements"]["select_raid"]:
         params["state"] = "raid_list"
@@ -63,7 +35,7 @@ def current_state_verification(tela,params):
     if selected_path == params["elements"]["select_supp"]:
         params["state"] = "pre_fight"
         return params
-    
+
     if selected_path == params["elements"]["request_support"]:
         params["state"] = "fight_off"
         return params
@@ -71,194 +43,214 @@ def current_state_verification(tela,params):
     if selected_path == params["elements"]["mid_battle"]:
         params["state"] = "fight_on"
         return params
-    
-    if selected_path == params["elements"]["popup"] or selected_path == params["elements"]["boss_available"] :
+
+    if (
+        selected_path == params["elements"]["popup"]
+        or selected_path == params["elements"]["boss_available"]
+    ):
         params["state"] = "main_menu"
         print(params["state"])
         return params
 
-    if selected_path == params["elements"]["battle_lost"] or selected_path == params["elements"]["battle_gu"]:
+    if (
+        selected_path == params["elements"]["battle_lost"]
+        or selected_path == params["elements"]["battle_gu"]
+    ):
         params["state"] = "fight_lost"
         return params
-    
+
     if selected_path == params["elements"]["battle_won"]:
         params["state"] = "fight_won"
         return params
-    
-    if selected_path == None:
 
+    if selected_path == None:
         return params
 
 
-
-
 def look_for_raids(params):
-    tela=tools.capture_screenshot()
-    objects=params["V3"].screen_elements()
+    tela = tools.capture_screenshot()
+    objects = params["V3"].screen_elements()
 
-    location, path= tools.search_single_on_single(objects["r_reward"],params["conf"],tela)
+    location, path = tools.search_single_on_single(
+        objects["r_reward"], params["conf"], tela
+    )
 
     if path is not None:
-        clicker(location,path)
-        tela=tools.capture_screenshot()
- 
-        location, path= tools.search_single_on_single(objects["r_sucess"],params["conf"],tela)
-        clicker(location,path)
+        tools.clicker(location, path)
+        tela = tools.capture_screenshot()
+
+        location, path = tools.search_single_on_single(
+            objects["r_sucess"], params["conf"], tela
+        )
+        tools.clicker(location, path)
         return
 
-    location, path= tools.search_single_on_single(objects["No_btt"],params["conf"],tela)
-    
+    location, path = tools.search_single_on_single(
+        objects["No_btt"], params["conf"], tela
+    )
+
     if path is not None:
         refresh(params)
         return params
 
-    selected_location, selected_path= tools.search_single_on_array(params["V3"].raid_boss_list(),params["conf"],tela) 
+    selected_location, selected_path = tools.search_single_on_array(
+        params["V3"].raid_boss_list(), params["conf"], tela
+    )
 
     if selected_path is not None:
-            clicker(selected_location,selected_path)
-            return params
-        
+        tools.clicker(selected_location, selected_path)
+        return params
+
     else:
-        tela=tools.capture_screenshot()
-        location, path= tools.search_single_on_single(objects["item"],params["conf"],tela)
+        tela = tools.capture_screenshot()
+        location, path = tools.search_single_on_single(
+            objects["item"], params["conf"], tela
+        )
 
         if path is not None:
-            clicker(location,path)
-            tela=tools.capture_screenshot()
-            location, path = tools.search_single_on_single(objects["confirm"],params["conf"],tela)
+            tools.clicker(location, path)
+            tela = tools.capture_screenshot()
+            location, path = tools.search_single_on_single(
+                objects["confirm"], params["conf"], tela
+            )
 
-            clicker(location,path)
+            tools.clicker(location, path)
         else:
             refresh(params)
             return params
-        
+
     return params
 
 
 def pre_battle(params):
-    tela=tools.capture_screenshot()
-    objects=params["V3"].screen_elements()
+    tela = tools.capture_screenshot()
+    objects = params["V3"].screen_elements()
 
-    location, path= tools.search_single_on_single(objects["my_supp"],params["conf"],tela)
-
-
-    if path is not None:
-        clicker(location,path)
-        
-    location, path= tools.search_single_on_single(objects["go_to_quest"],params["conf"],tela)
+    location, path = tools.search_single_on_single(
+        objects["my_supp"], params["conf"], tela
+    )
 
     if path is not None:
-        clicker(location,path)
+        tools.clicker(location, path)
 
-
-    possibilities=[
-            objects["confirm"],
-            objects["r_sucess"],
-            objects["return_to_raids"],
-            ]
-    tela=tools.capture_screenshot()
-    location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
+    location, path = tools.search_single_on_single(
+        objects["go_to_quest"], params["conf"], tela
+    )
 
     if path is not None:
-        clicker(location,path)
-        tela=tools.capture_screenshot()
-        location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
+        tools.clicker(location, path)
+
+    possibilities = [
+        objects["confirm"],
+        objects["r_sucess"],
+        objects["return_to_raids"],
+    ]
+    tela = tools.capture_screenshot()
+    location, path = tools.search_single_on_array(possibilities, params["conf"], tela)
+
+    if path is not None:
+        tools.clicker(location, path)
+        tela = tools.capture_screenshot()
+        location, path = tools.search_single_on_array(
+            possibilities, params["conf"], tela
+        )
 
         if path is params["elements"]["confirm"]:
-            params["state"]= "raid_list"
-            clicker(location,path)
+            params["state"] = "raid_list"
+            tools.clicker(location, path)
             return params
 
         if path is params["elements"]["r_sucess"]:
-            clicker(location,path)
+            tools.clicker(location, path)
 
-        if path is params["elements"]["return_to_raids"]: 
-            params["state"]= "raid_list"
-            clicker(location,path)
+        if path is params["elements"]["return_to_raids"]:
+            params["state"] = "raid_list"
+            tools.clicker(location, path)
             return params
-    
-    
+
     return params
+
 
 def offbattle(params):
-    tela=tools.capture_screenshot()
-    objects=params["V3"].screen_elements()
+    tela = tools.capture_screenshot()
+    objects = params["V3"].screen_elements()
 
-    location, path= tools.search_single_on_single(objects["supp_req"],params["conf"],tela)
+    location, path = tools.search_single_on_single(
+        objects["supp_req"], params["conf"], tela
+    )
 
     if path is not None:
-        clicker(location,path)
-
-
+        tools.clicker(location, path)
 
     return params
-        
+
 
 def onbattle(params):
-    tela=tools.capture_screenshot()
-    objects=params["V3"].screen_elements()
-    location, path= tools.search_single_on_single(objects["start_battle"],params["conf"],tela)
+    tela = tools.capture_screenshot()
+    objects = params["V3"].screen_elements()
+    location, path = tools.search_single_on_single(
+        objects["start_battle"], params["conf"], tela
+    )
 
     if path is not None:
-        clicker(location,path)
+        tools.clicker(location, path)
         return params
     else:
-        
         time.sleep(5)
         return params
 
-def victory(params):
-    tela=tools.capture_screenshot()
-    objects=params["V3"].screen_elements()
 
-    possibilities=[
-            objects["confirm"],
-            objects["return_to_raids"],
-            ]
-    location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
+def victory(params):
+    tela = tools.capture_screenshot()
+    objects = params["V3"].screen_elements()
+
+    possibilities = [
+        objects["confirm"],
+        objects["return_to_raids"],
+    ]
+    location, path = tools.search_single_on_array(possibilities, params["conf"], tela)
 
     print(path)
     if path is not None:
-        clicker(location,path)
+        tools.clicker(location, path)
         if path is objects["return_to_raids"]:
-            params["Qcount"]+=1
+            params["Qcount"] += 1
     return params
 
-def loss(params):
-    tela=tools.capture_screenshot()
-    objects=params["V3"].screen_elements()
 
-    possibilities=[
-            objects["return_to_raids"],
-            objects["cancel"],
-            ]
-    location, path= tools.search_single_on_array(possibilities,params["conf"],tela)
+def loss(params):
+    tela = tools.capture_screenshot()
+    objects = params["V3"].screen_elements()
+
+    possibilities = [
+        objects["go_to_my_page"],
+        objects["cancel"],
+    ]
+    location, path = tools.search_single_on_array(possibilities, params["conf"], tela)
+    print(f"Path: {path}")
 
     if path is not None:
-        clicker(location,path)
+        tools.clicker(location, path)
     return params
 
 
 def menu(params):
-    tela=tools.capture_screenshot()
-    objects=params["V3"].screen_elements()
-    
+    tela = tools.capture_screenshot()
+    objects = params["V3"].screen_elements()
 
-    possibilities=[
-            objects["popup"],
-            objects["boss_available"],
-            ]
-    location, path=  tools.search_single_on_array(possibilities,params["conf"],tela)
+    possibilities = [
+        objects["popup"],
+        objects["boss_available"],
+    ]
+    location, path = tools.search_single_on_array(possibilities, params["conf"], tela)
 
     if path is not None:
-        clicker(location,path)
+        tools.clicker(location, path)
         return params
     return params
 
+
 def update(params):
-    print("KamiPro bot Initiating...")
-    print("Hold F1 to cancel execution")
-    
     """
     params["prc"]
     params["run"]
@@ -269,108 +261,116 @@ def update(params):
     params["in_fgt"]
     """
 
-    while params["run"]:
-        tela_atual = tools.capture_screenshot()
+    tela_atual = tools.capture_screenshot()
+    params = current_state_verification(tela_atual, params)
 
-        params=current_state_verification(tela_atual,params)
+    if params["state"] == "raid_list":
+        try:
+            params = look_for_raids(params)
+            print("Choose raid")
+        except Exception as e:
+            print(f"Erro: {e}")
+        traceback.print_exc()
 
-        print(params["state"])
+    if params["state"] == "main_menu":
+        try:
+            params = menu(params)
+            print("menu")
+        except Exception as e:
+            print(f"Erro: {e}")
+            traceback.print_exc()
 
+    if params["state"] == "pre_fight":
+        try:
+            params = pre_battle(params)
+            print("Preparing to fight")
+        except Exception as e:
+            print(f"Erro: {e}")
+            traceback.print_exc()
 
-        if params["state"] == "raid_list":
-            try:
-                params=look_for_raids(params)
-                print("Choose raid") 
-            except Exception as e:
-                print(f"Erro: {e}")
-                traceback.print_exc()
+    if params["state"] == "fight_off":
+        try:
+            params = offbattle(params)
+            print("Request supp?")
+        except Exception as e:
+            print(f"Erro: {e}")
+            traceback.print_exc()
 
-        if params["state"] == "main_menu":
-            try:
-                params=menu(params)
-                print("menu") 
-            except Exception as e:
-                print(f"Erro: {e}")
-                traceback.print_exc()
+    if params["state"] == "fight_on":
+        try:
+            params = onbattle(params)
+            print("Fighting...")
+        except Exception as e:
+            print(f"Erro: {e}")
+            traceback.print_exc()
 
-        if params["state"] == "pre_fight":
-            try:
-                params=pre_battle(params)
-                print("Preparing to fight") 
-            except Exception as e:
-                print(f"Erro: {e}")
-                traceback.print_exc()
+    if params["state"] == "fight_won":
+        try:
+            params = victory(params)
+            print("Victory!")
+        except Exception as e:
+            print(f"Erro: {e}")
+            traceback.print_exc()
 
-        if params["state"] == "fight_off":
-            try:
-                params=offbattle(params)
-                print("Request supp?") 
-            except Exception as e:
-                print(f"Erro: {e}")
-                traceback.print_exc() 
+    if params["state"] == "fight_lost":
+        try:
+            params = loss(params)
+            print("Lost...")
+        except Exception as e:
+            print(f"Erro: {e}")
+            traceback.print_exc()
 
-        if params["state"] == "fight_on":
-            try:
-                params = onbattle(params)
-                print("Fighting...") 
-            except Exception as e:
-                print(f"Erro: {e}")
-                traceback.print_exc()
+    tools.check_for_f1()
+    tools.clear_console()
+    params["prc_high"], params["prc_low"] = tools.stats_screen(
+        params["prc"],
+        params["prc_high"],
+        params["prc_low"],
+        params["Qcount"],
+        params["state"],
+    )
+    params["Lcount"] += 1
 
-        if params["state"] == "fight_won":
-            
-            try:
-                params=victory(params)
-                print("Victory!") 
-            except Exception as e:
-                print(f"Erro: {e}")
-                traceback.print_exc()
-
-        if params["state"] == "fight_lost":
-            try:
-                params=loss(params)
-                print("Lost...") 
-            except Exception as e:
-                print(f"Erro: {e}")
-                traceback.print_exc()
-
-
-        tools.check_for_f1()
-        tools.clear_console()
-        stats_screen(params)
-        params["Lcount"]+=1
-        
 
 if __name__ == "__main__":
     # Clears the console
     tools.clear_console()
 
-    current_process = psutil.Process() #0
-    if current_process is not None:
+    try:
+        current_process = psutil.Process()
+        lowest_record = current_process.memory_info()
+        highest_record = current_process.memory_info()
         print("Process loaded")
-    instance=imgsV3
-    if instance is not None:
-        print("Image paths loaded")    
-    running=True #1
-    loop_counter= 1 #2
-    quests_counter=0 #3
-    state= "Danone" #4
-    confidence_level = 0.9 #5
-    screen_elements= instance.screen_elements()
+
+        instance = imgsV3
+        print("Image paths loaded")
+
+    except Exception as e:
+        print(f"Error loading a library. Error: {e}")
+
+    running = True  # 1
+    loop_counter = 1  # 2
+    quests_counter = 0  # 3
+    state = "Danone"  # 4
+    confidence_level = 0.9  # 5
+    screen_elements = instance.screen_elements()
 
     params = {
-    "prc": current_process,
-    "run": running,
-    "Lcount": loop_counter,
-    "Qcount": quests_counter,
-    "state": state,
-    "conf": confidence_level,
-    "elements":screen_elements,
-    "V3": instance,
-    "scr": pyautogui
+        "prc": current_process,
+        "prc_low": lowest_record,
+        "prc_high": highest_record,
+        "run": running,
+        "Lcount": loop_counter,
+        "Qcount": quests_counter,
+        "state": state,
+        "elements": screen_elements,
+        "V3": instance,
+        "conf": confidence_level,
+        "scr": pyautogui,
+    }
 
-}
+    print("KamiPro bot Initiating...")
+    print("Hold F1 to cancel execution")
 
-
-    update(params)
-    
+    while params["run"]:
+        update(params)

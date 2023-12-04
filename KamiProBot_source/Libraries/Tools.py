@@ -50,7 +50,7 @@ def search_single_on_array(image_paths, conf,tela):
         
     return None, None
 
-def search_single_on_single(path,params,tela):
+def search_single_on_single(path,confidence,tela):
          
     try:
         check_for_f1()
@@ -58,7 +58,7 @@ def search_single_on_single(path,params,tela):
         template = cv2.imread(path)
         result = cv2.matchTemplate(tela, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        if max_val >= params["conf"]:
+        if max_val >= confidence:
             return max_loc, path
         else:
             screenshot=None

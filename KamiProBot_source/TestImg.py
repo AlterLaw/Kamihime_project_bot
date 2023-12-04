@@ -1,4 +1,3 @@
-import os
 import cv2
 import numpy as np
 import pyautogui
@@ -13,12 +12,13 @@ def image_exists(folder_path):
     result = cv2.matchTemplate(screenshot_np, template, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
     print(max_val)
-enemy_int=7
-array_value="cancel"
 
-array=imgV3.screen_elements()
-enemy=imgV3.raid_boss_list()
-\
+
+enemy_int = 32
+array_value = "daily_raid_begin"
+
+array = imgV3.screen_elements()
+enemy = imgV3.raid_boss_list()
 print(enemy[enemy_int])
 image_exists(enemy[enemy_int])
 
