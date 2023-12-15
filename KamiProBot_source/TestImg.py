@@ -14,8 +14,8 @@ def image_exists(folder_path):
     print(max_val)
 
 
-enemy_int = 32
-array_value = "daily_raid_begin"
+enemy_int = 0
+array_value = "supp_request"
 
 array = imgV3.screen_elements()
 enemy = imgV3.raid_boss_list()

@@ -23,11 +23,22 @@ def refresh(params):
 
 
 def current_state_verification(tela, params):
-    caminho = params["V3"].verification_elements()
+
+    possibilities=[
+        params["elements"]["select_raid"],
+        params["elements"]["select_supp"],
+        params["elements"]["supp_request"],
+        params["elements"]["battle_lost"],
+        params["elements"]["battle_gu"],
+        params["elements"]["mid_battle"],
+        params["elements"]["battle_won"],
+        params["elements"]["popup"],
+    ]
+
     selected_location, selected_path = tools.search_single_on_array(
-        caminho, params["conf"], tela
+        possibilities, params["conf"], tela
     )
-    print(params["state"])
+    print(f"CurrentState: {params["state"]}")
     if selected_path == params["elements"]["select_raid"]:
         params["state"] = "raid_list"
         return params
@@ -36,7 +47,7 @@ def current_state_verification(tela, params):
         params["state"] = "pre_fight"
         return params
 
-    if selected_path == params["elements"]["request_support"]:
+    if selected_path == params["elements"]["supp_request"]:
         params["state"] = "fight_off"
         return params
 
@@ -44,18 +55,14 @@ def current_state_verification(tela, params):
         params["state"] = "fight_on"
         return params
 
-    if (
-        selected_path == params["elements"]["popup"]
-        or selected_path == params["elements"]["boss_available"]
-    ):
+    if (selected_path == params["elements"]["popup"]
+        or selected_path == params["elements"]["boss_available"]):
         params["state"] = "main_menu"
         print(params["state"])
         return params
 
-    if (
-        selected_path == params["elements"]["battle_lost"]
-        or selected_path == params["elements"]["battle_gu"]
-    ):
+    if (selected_path == params["elements"]["battle_lost"]
+        or selected_path == params["elements"]["battle_gu"]):
         params["state"] = "fight_lost"
         return params
 
@@ -176,7 +183,7 @@ def offbattle(params):
     objects = params["V3"].screen_elements()
 
     location, path = tools.search_single_on_single(
-        objects["supp_req"], params["conf"], tela
+        objects["supp_request"], params["conf"], tela
     )
 
     if path is not None:
@@ -225,6 +232,7 @@ def loss(params):
     possibilities = [
         objects["go_to_my_page"],
         objects["cancel"],
+        objects["boss_available"],
     ]
     location, path = tools.search_single_on_array(possibilities, params["conf"], tela)
     print(f"Path: {path}")
@@ -321,7 +329,7 @@ def update(params):
             traceback.print_exc()
 
     tools.check_for_f1()
-    tools.clear_console()
+    #tools.clear_console()
     params["prc_high"], params["prc_low"] = tools.stats_screen(
         params["prc"],
         params["prc_high"],

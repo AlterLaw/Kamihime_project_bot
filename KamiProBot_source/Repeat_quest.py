@@ -121,12 +121,12 @@ def find_and_click(image_paths, confidence):
                 pyautogui.click(center_x, center_y)
 
 
-            if params[3]>60:
+            if params[3]>10:
                 running=False
 
 
         tools.check_for_f1()
-        time.sleep(1)
+        time.sleep(2)
 
         
 
